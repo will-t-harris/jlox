@@ -78,23 +78,115 @@ class Scanner {
 		case '>':
 			addToken(match('=') ? GREATER_EQUAL : GREATER);
 			break;
+		case '/':
+			if (match('/')) {
+				while (peek() != '\n' && !isAtEnd()) {
+					advance();
+				}
+			} else {
+				addToken(SLASH);
+			}
+			break;
+
+		case ' ':
+		case '\r':
+		case '\t':
+			// ignore whitespace
+			break;
+
+		case '\n':
+			line++;
+			break;
+
+		case '"':
+			string();
+			break;
 
 		// Report error if there was no match
 		default:
-			Lox.error(line, "Unexpected character.");
-			break;
+			if (isDigit(c)) {
+				number();
+			} else {
+				Lox.error(line, "Unexpected character.");
+				break;
+			}
 		}
 	}
 
+	private void number() {
+		while (isDigit(peek())) {
+			advance();
+		}
+
+		// look for fractional part of number
+		if (peek() == '.' && isDigit(peekNext())) {
+			// consume the period
+			advance();
+
+			while (isDigit(peek())) {
+				advance();
+			}
+		}
+
+		addToken(NUMBER, Double.parseDouble(source.substring(start, current)));
+	}
+
+	private void string() {
+		while (peek() != '"' && !isAtEnd()) {
+			if (peek() == '\n') {
+				line++;
+			}
+
+			advance();
+		}
+
+		if (isAtEnd()) {
+			Lox.error(line, "Unterminated string");
+			return;
+		}
+
+		advance(); // gets the closing '"'
+
+		// trims the surrounding quotes
+		String value = source.substring(start + 1, current - 1);
+
+		addToken(STRING, value);
+	}
+
 	private boolean match(char expected) {
-		if (isAtEnd())
+		if (isAtEnd()) {
 			return false;
-		if (source.charAt(current) != expected)
+		}
+		if (source.charAt(current) != expected) {
 			return false;
+		}
 
 		// only consume the character if it's what we're looking for
 		current++;
 		return true;
+	}
+
+	// single character lookahead
+	// similar to advance() but it doesn't consume the character
+	private char peek() {
+		if (isAtEnd()) {
+			return '\0';
+		}
+
+		return source.charAt(current);
+	}
+
+	// two character lookahead
+	private char peekNext() {
+		if (current + 1 >= source.length()) {
+			return '\0';
+		}
+
+		return source.charAt(current + 1);
+	}
+
+	private boolean isDigit(char c) {
+		return c >= '0' && c <= '9';
 	}
 
 	private boolean isAtEnd() {
