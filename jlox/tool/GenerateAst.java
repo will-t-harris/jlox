@@ -37,6 +37,10 @@ public class GenerateAst {
 
 			defineType(writer, baseName, className, fields);
 		}
+		
+		// The base accept() method
+		writer.println();
+		writer.println("  abstract <R> R accept(Visitor<R> visitor);");
 
 		writer.println("}");
 		writer.close();
@@ -49,6 +53,8 @@ public class GenerateAst {
 			String typeName = type.split(":")[0].trim();
 			writer.println("    R visit" + typeName + baseName + "(" + typeName + " " + baseName.toLowerCase() + ");");
 		}
+		
+		writer.println("  }");
 	}
 
 	private static void defineType(PrintWriter writer, String baseName, String className, String fieldList) {
