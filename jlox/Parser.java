@@ -171,15 +171,9 @@ class Parser {
             if (previous().type == SEMICOLON) return;
 
             switch (peek().type) {
-                case CLASS:
-                case FOR:
-                case FUN:
-                case IF:
-                case PRINT:
-                case RETURN:
-                case VAR:
-                case WHILE:
+                case CLASS, FOR, FUN, IF, PRINT, RETURN, VAR, WHILE -> {
                     return;
+                }
             }
 
             advance();
