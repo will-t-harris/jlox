@@ -1,46 +1,51 @@
 package jlox;
 
 class AstPrinter implements Expr.Visitor<String> {
-	String print(Expr expr) {
-		return expr.accept(this);
-	}
+    String print(Expr expr) {
+        return expr.accept(this);
+    }
 
-	@Override
-	public String visitBinaryExpr(Expr.Binary expr) {
-		return parenthesize(expr.operator.lexeme, expr.left, expr.right);
-	}
+    @Override
+    public String visitBinaryExpr(Expr.Binary expr) {
+        return parenthesize(expr.operator.lexeme, expr.left, expr.right);
+    }
 
-	@Override
-	public String visitGroupingExpr(Expr.Grouping expr) {
-		return parenthesize("group", expr.expression);
-	}
+    @Override
+    public String visitGroupingExpr(Expr.Grouping expr) {
+        return parenthesize("group", expr.expression);
+    }
 
-	@Override
-	public String visitLiteralExpr(Expr.Literal expr) {
-		if (expr.value == null) {
-			return "nil";
-		}
+    @Override
+    public String visitLiteralExpr(Expr.Literal expr) {
+        if (expr.value == null) {
+            return "nil";
+        }
 
-		return expr.value.toString();
-	}
+        return expr.value.toString();
+    }
 
-	@Override
-	public String visitUnaryExpr(Expr.Unary expr) {
-		return parenthesize(expr.operator.lexeme, expr.right);
-	}
+    @Override
+    public String visitVariableExpr(Expr.Variable expr) {
+        return null;
+    }
 
-	public String parenthesize(String name, Expr... exprs) {
-		StringBuilder builder = new StringBuilder();
+    @Override
+    public String visitUnaryExpr(Expr.Unary expr) {
+        return parenthesize(expr.operator.lexeme, expr.right);
+    }
 
-		builder.append("(").append(name);
+    public String parenthesize(String name, Expr... exprs) {
+        StringBuilder builder = new StringBuilder();
 
-		for (Expr expr : exprs) {
-			builder.append(" ");
-			builder.append(expr.accept(this));
-		}
+        builder.append("(").append(name);
 
-		builder.append(")");
+        for (Expr expr : exprs) {
+            builder.append(" ");
+            builder.append(expr.accept(this));
+        }
 
-		return builder.toString();
-	}
+        builder.append(")");
+
+        return builder.toString();
+    }
 }
