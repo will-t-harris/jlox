@@ -1,6 +1,7 @@
 package jlox;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static jlox.TokenType.*;
@@ -44,6 +45,10 @@ class Parser {
     }
 
     private Stmt statement() {
+        if (match(FOR)) {
+            return forStatement();
+        }
+
         if (match(IF)) {
             return ifStatement();
         }
@@ -61,6 +66,56 @@ class Parser {
         }
 
         return expressionStatement();
+    }
+
+    // implements for loops by 'desugaring' the syntax down to while loop syntax
+    private Stmt forStatement() {
+        consume(LEFT_PAREN, "Expect '(' after 'for'.");
+
+        Stmt initializer;
+        if (match(SEMICOLON)) {
+            initializer = null; // initializer was omitted
+        } else if (match(VAR)) {
+            initializer = varDeclaration();
+        } else {
+            initializer = expressionStatement();
+        }
+
+        Expr condition = null;
+        if (!check(SEMICOLON)) {
+            condition = expression(); // only if condition was not omitted
+        }
+        consume(SEMICOLON, "Expect ';' after loop condition.");
+
+        Expr increment = null;
+        if (!check(RIGHT_PAREN)) {
+            increment = expression(); // only if increment was not omitted
+        }
+        consume(RIGHT_PAREN, "Expect ')' after for clauses.");
+        Stmt body = statement();
+
+        if (increment != null) {
+            // replace the body with a block that contains the original body
+            // followed by an expression statement evaluating the increment.
+            // This is how the increment is executed after the body in each
+            // iteration of the for loop.
+            body = new Stmt.Block(Arrays.asList(body, new Stmt.Expression(increment)));
+        }
+
+        if (condition == null) {
+            // if the condition was omitted, set it to true to make an infinite
+            // loop
+            condition = new Expr.Literal(true);
+        }
+        body = new Stmt.While(condition, body);
+
+        if (initializer != null) {
+            // if there's an initializer, run it once before the loop by placing
+            // it before all the above code in the body
+            body = new Stmt.Block(Arrays.asList(initializer, body));
+        }
+
+        return body;
     }
 
     private Stmt ifStatement() {
