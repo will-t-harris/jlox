@@ -181,7 +181,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     public Void visitFunctionStmt(Stmt.Function stmt) {
         // wrap the function syntax node with LoxFunction so we can execute it
         // compile time representation -> runtime representation
-        LoxFunction function = new LoxFunction(stmt);
+        LoxFunction function = new LoxFunction(stmt, environment);
 
         // bind the function declaration to new variable
         environment.define(stmt.name.lexeme, function);
