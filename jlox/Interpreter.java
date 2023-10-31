@@ -227,7 +227,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     public Void visitFunctionStmt(Stmt.Function stmt) {
         // wrap the function syntax node with LoxFunction so we can execute it
         // compile time representation -> runtime representation
-        LoxFunction function = new LoxFunction(stmt, environment);
+        LoxFunction function = new LoxFunction(stmt, environment, false);
 
         // bind the function declaration to new variable
         environment.define(stmt.name.lexeme, function);
@@ -314,7 +314,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
         Map<String, LoxFunction> methods = new HashMap<>();
         for (Stmt.Function method : stmt.methods) {
-            LoxFunction function = new LoxFunction(method, environment);
+            LoxFunction function = new LoxFunction(method, environment, method.name.lexeme.equals("init"));
             methods.put(method.name.lexeme, function);
         }
 
