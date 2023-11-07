@@ -1,8 +1,20 @@
-class Foo {
-    init() {
-        print this;
+// Simple inheritance
+class Doughnut {
+    cook() {
+        print "Fry until golden brown.";
     }
 }
 
-var foo = Foo();
-print foo.init();
+class BostonCream < Doughnut {}
+
+BostonCream().cook();
+
+// Calling original superclass methods with `super`
+class ChocolateDoughnut < Doughnut {
+    cook() {
+        super.cook();
+        print "Coat with chocolate.";
+    }
+}
+
+ChocolateDoughnut().cook();
